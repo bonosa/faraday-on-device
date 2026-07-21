@@ -125,6 +125,13 @@
   }
   .filechip.show{display:flex}
   .filechip .x{margin-left:auto;color:var(--muted);cursor:pointer;font-family:var(--body)}
+  .samples{margin-top:14px;font-size:12.5px;color:var(--muted);line-height:1.7}
+  .samples a{color:var(--copper);text-decoration:none;border-bottom:1px solid rgba(200,133,58,.35)}
+  .samples a:hover{color:var(--copper-bright);border-bottom-color:var(--copper-bright)}
+  .samples-note{display:block;color:var(--muted-2);font-size:11px;margin-top:2px}
+  .em-copper{color:var(--copper-bright);font-weight:500}
+  .try-steps{margin:8px 0 10px;padding-left:20px;display:flex;flex-direction:column;gap:5px}
+  .try-steps li{font-size:13px;color:var(--muted);line-height:1.5}
 
   /* results */
   #results{grid-column:1/-1;display:none}
@@ -196,7 +203,14 @@
     <h2>Read a document without sending it anywhere.</h2>
     <p>Faraday runs a language model <span class="em">inside your browser</span>. Drop in a PDF or a photo of a form — it extracts the key fields, summarizes it, and flags anything worth a second look. <span class="em">No upload. No server. No account.</span> Turn off your Wi-Fi and watch it keep working.</p>
     <div class="howto">
-      <span class="howto-num">How it works:</span> Turn off your Wi-Fi after the model downloads, drop in the PDF or photo, and watch it work — slowly, because it runs on <span class="em">your machine, not a cloud GPU</span>. That's the privacy tradeoff. It produces the full summary and key details, having sent <span class="em">zero bytes</span> anywhere.
+      <span class="howto-num">Try it in 4 steps:</span>
+      <ol class="try-steps">
+        <li>Wait for the model to finish downloading (<span class="em">"Model ready"</span>).</li>
+        <li><span class="em">While still online</span>, grab a sample document using the links in the box on the right — or use your own file.</li>
+        <li>Now <span class="em">turn off your Wi-Fi</span>. Watch the corner flip to <span class="em">"offline · air-gapped."</span></li>
+        <li>Drop the document in and analyze. It works with <span class="em">zero bytes sent</span> — even fully disconnected.</li>
+      </ol>
+      It runs slowly because it's on <span class="em">your machine, not a cloud GPU</span> — that's the privacy tradeoff.
     </div>
   </section>
 
@@ -228,6 +242,12 @@
       </div>
       <button class="btn" id="analyze" disabled>Analyze on this device</button>
       <div class="err" id="err"></div>
+      <div class="samples" id="samples">
+        No document handy? <span class="em-copper">While you're still online</span>, download a sample:
+        <a href="demo-lab-report.pdf" download>lab report (PDF)</a> ·
+        <a href="demo-intake-form.png" download>intake form (photo)</a>
+        <span class="samples-note">Then turn off Wi-Fi and drop it above — nothing gets uploaded.</span>
+      </div>
     </div>
 
     <!-- RESULTS -->
@@ -320,7 +340,22 @@
 <script type="module">
 import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.3.3';
 import * as pdfjs from 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.7.76/build/pdf.min.mjs';
-pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.7.76/build/pdf.worker.min.mjs';
+// Load the pdf.js worker through a blob URL. Pointing workerSrc directly at a
+// cross-origin .mjs fails on static hosts (GitHub Pages) because the browser
+// won't start a module worker from another origin. Fetching it and wrapping it
+// in a same-origin blob URL sidesteps that.
+(async () => {
+  try{
+    const workerUrl = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.7.76/build/pdf.worker.min.mjs';
+    const res = await fetch(workerUrl);
+    const code = await res.text();
+    const blob = new Blob([code], { type: 'text/javascript' });
+    pdfjs.GlobalWorkerOptions.workerSrc = URL.createObjectURL(blob);
+  }catch(e){
+    // fallback to direct URL if blob approach fails (e.g. offline after cache)
+    pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.7.76/build/pdf.worker.min.mjs';
+  }
+})();
 
 const $ = id => document.getElementById(id);
 const MODEL = 'onnx-community/Qwen2.5-0.5B-Instruct';
