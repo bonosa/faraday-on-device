@@ -1,0 +1,49 @@
+# ── OS / editor noise ───────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*~
+.vscode/
+.idea/
+
+# ── Node (only if you ever add tooling) ─────────────
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# ── Deploy / secrets ────────────────────────────────
+.vercel
+.env
+.env.*
+*.pem
+*.key
+
+# ── Video working files ─────────────────────────────
+# Raw footage and audio are large; GitHub rejects files over 100 MB.
+# Keep the finished demo on YouTube/Vimeo and link it from the README.
+*.mp4
+*.mov
+*.avi
+*.mp3
+*.wav
+/recordings/
+/video/
+
+# ── Local model cache, if you ever dump one here ────
+/models/
+*.onnx
+
+
+# ══════════════════════════════════════════════════════
+# DO NOT IGNORE — these must be committed and deployed:
+#
+#   index.html
+#   demo-lab-report.pdf      ← the "download a sample" link
+#   demo-intake-form.png     ← the "download a sample" link
+#   README.md
+#
+# The two demo files are referenced by relative path in index.html.
+# If they're missing from the repo, the sample links 404 and step 2
+# of the on-page instructions breaks for anyone trying the app.
+# ══════════════════════════════════════════════════════
