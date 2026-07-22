@@ -46,7 +46,7 @@ python -m http.server 8000
 ```
 
 Then open **http://localhost:8000/faraday.html** in Chrome or Edge (version 121+, for WebGPU).
-Also hosted on https://faraday-deploy-1.vercel.app/
+Also hosted on https://faraday-deploy-2.vercel.app/
 
 On first load, the model (~786 MB) downloads once and is cached by the browser. After that it loads instantly and works offline.
 
